@@ -1,0 +1,2 @@
+alert('Visitante retirado de la lista, con exito.');
+$("#ban_item")

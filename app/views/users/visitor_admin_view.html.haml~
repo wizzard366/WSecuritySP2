@@ -1,0 +1,36 @@
+
+.row
+  .span3
+    .well
+      =image_tag( @vis.photo.image.url(:medium),:class=>"img-rounded")
+  .span6
+    %strong Nombre:
+    = @vis.name
+    %br
+    %strong No. de Identificacion:
+    = @vis.id_number
+    %br
+    %strong Status de Visitante:
+    = @vis.visitor_status.name
+    %br
+    = link_to "Regresar", secret_url
+        
+%table.table.table-striped.table-bordered.table-hover#visitorRecord_table
+  %thead
+    %tr.info
+      %th{:colspan=>5}
+        %h2 Historial de visitas
+        %p 
+        %small{:style=>"font-weight:normal"}En el Historial de visitas, Todas las visitas que esta persona ha realizado dentro del residencial y hacia a donde.
+    %tr
+      %th Residencia
+      %th Placas del vehiculo
+      %th Entrada
+      %th Salida
+  %tbody
+  - @vis.records.where("residential_id=:resid",{:resid=>current_user.residential.id}).order("entrance DESC").each do |t|
+    %tr
+      %td= link_to t.user.usercode, show_res_path(t.user.id)
+      %td= t.plate_number
+      %td= t.entrance
+      %td= t.exit

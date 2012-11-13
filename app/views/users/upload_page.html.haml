@@ -1,0 +1,74 @@
+
+.row
+  .span4
+    %h2 Ingreso
+    %input{:onclick => "webcam.reset();", :type => "button", :value => "Camara Reset",:class=>"btn btn-success"}
+    %center
+      .well.well-small#webcam
+  .span5
+    = form_tag(set_record_url, :method => "post",:class => "form-vertical", :remote => true) do
+      = "Doc. Identificacion:"
+      = text_field_tag(:visitor_doc)
+      %br
+      = "Nombre:"
+      = text_field_tag(:visitor_name)
+      %br
+      = "Placa del vehiculo:"
+      = text_field_tag(:plate_number)
+      %br
+      = "Codigo de casa:"
+      = text_field_tag(:usercode)
+      %br
+      = "Fecha/Hora de entrada:"
+      = text_field_tag(:entrance,"#{DateTime.now}",:readonly=>true)
+      %br
+      %input{:onclick => "webcam.snap();", :type => "button", :value => "1.) Capturar Doc.",:class=>"btn btn-warning"}
+      %br
+      = submit_tag("2.) Solicitar Ingreso",:class=>"btn btn-danger")
+     
+.row
+  .span9.well.well-small
+    %h2 Salida
+    %center
+      = form_tag(set_exit_url, :method => "post",:class => "form-vertical", :remote => true) do
+        = "Doc. Identificacion:"
+        = text_field_tag(:visitor_doc)
+        %br
+        = submit_tag("Marcar Salida",:class=>"btn btn-success")
+.modal.hide.fade#ResultModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal","data-backdrop"=>"static",:onclick=>"webcam.reset()"}x
+    %p#modalmessage
+  .modal-body#modalbody
+
+:javascript
+  function onload_complete(msg) {
+    // fetch the CSRF meta tag data
+    var csrf_param = $('meta[name=csrf-param]').attr('content');
+    var csrf_token = $('meta[name=csrf-token]').attr('content');
+
+    // reset the api URL appending the auth token parameter
+    webcam.set_api_url('upload_pic' + '?' + csrf_param + "=" + encodeURI(csrf_token));
+    alert('upload_pic' + '?' + csrf_param + "=" + encodeURI(csrf_token));
+  }
+  function upload_complete(msg) {
+    if (msg == 'ok') {
+      $('new_photo').show();
+      $('photo_description').focus();
+    } else {
+      alert('An error occured');
+      webcam.reset();
+    }
+  }
+  function on_error_shit(msg){
+    alert('Fuck! this shit isn\'t working...');
+  }
+  webcam.set_hook('onComplete', 'upload_complete');
+  webcam.set_swf_url('/webcam.swf');
+  webcam.set_api_url(' upload_pic ');
+  webcam.set_quality(90);
+  webcam.set_shutter_sound(true, '/shutter.mp3');
+  webcam.set_hook('onLoad', 'onload_complete');
+  webcam.set_hook('onComplete', 'upload_complete');
+  webcam.set_hook('onError','on_error_shit')
+  $('#webcam').html(webcam.get_html(300, 180));

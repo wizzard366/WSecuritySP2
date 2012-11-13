@@ -1,0 +1,197 @@
+.row
+  .span4
+    %center
+      %h2{:style=>"color:#333399"} Panel de Administracion
+      %table.table-bordered
+        %tr
+          %td{:style=>"padding:5%;text-align:justify;text-justify:inter-word;"}
+            %p A travez de este panel, se podra acceder a los datos y registro de visitas de todas las direcciones existentes dentro del residencial, ademas de ver el record de todas las visitas de este. Agregar, Editar y Eliminar Usuarios Administradores y Residenciales.
+  .span6
+    .fuck
+      %center
+        %h3{:style=>"color:#000066"} Datos de Usuario
+      .well
+        %b Codigo de Usuario:
+        =current_user.usercode
+        %br
+        %b Alias:
+        =current_user.name
+        %br
+        %b Tipo de Usuario:
+        =current_user.user_type.name
+        %br
+        %b Estatus de Usuario:
+        =current_user.user_status.name
+      
+%br
+.row
+  .span10
+    .tabbable.tabs-left
+      %ul.nav.nav-tabs
+        %li.active
+          %a{"data-toggle" => "tab", :href => "#adminResidential"}
+            %i.icon-star
+            %b Residencial
+        %li
+          %a{"data-toggle" => "tab", :href => "#adminAgents"}
+            %i.icon-eye-open
+            %b Agenetes
+        %li
+          %a{"data-toggle" => "tab", :href => "#adminAdmins"}
+            %i.icon-pencil
+            %b Administradores
+        %li
+          %a{"data-toggle" => "tab", :href => "#adminVisitor"}
+            %i.icon-th-list
+            %b Visitantes
+        %li
+          %a{"data-toggle" => "tab", :href => "#adminBanned"}
+            %i.icon-ban-circle
+            %b No Admitidos
+            
+      .tab-content
+        .tab-pane.active#adminResidential
+          %dl
+            %dt Administracion de Residencias
+            %dd En esta seccion es posible agregar, editar y eliminar usuarios de residencias. Ademas de realizar busquedas, de las residencias existentes para desplegar los datos de las mismas.
+            =link_to "Agregar Residencial", signup_url(:usertype=>1),:class=>'btn btn-primary'
+            %table.table.table-striped.table-bordered.table-condensed#usersTable
+              %thead
+                %tr
+                  %th
+                    %b Codigo
+                  %th
+                    %b Direccion
+                  %th
+                    %b Alias
+                  %th
+                    %b Estado
+                  %th
+                    %b Accion
+              %tbody
+                -@residential=current_user.residential
+                -@residential.users.where("user_type_id=1").each do |usr|
+                  %tr{:id=>"item_#{usr.id}"}
+                    %td=link_to usr.usercode, show_res_path(usr.id)
+                    %td=usr.physaddress
+                    %td=usr.name
+                    %td=usr.user_status.name 
+                    %td=link_to "Mostrar", show_res_path(usr.id)
+                      
+                        
+        .tab-pane#adminAdmins
+          %dl
+            %dt Panel de Administradores
+            %dd En esta seccion es posible agregar, editar y eliminar usuarios de Administracion. Estos tendran todas los permisos de Administrar todos los tipos de usuarios, ademas de tener acceso a todo el record de visitas del residencial.
+            =link_to "Agregar Administrador", signup_url(:usertype=>3),:class=>'btn btn-primary'
+            %table.table.table-striped.table-bordered.table-condensed#usersTable
+              %thead
+                %tr
+                  %th
+                    %b Codigo
+                  %th
+                    %b Alias
+                  %th
+                    %b Estado
+                  %th
+                    %b Accion
+              %tbody
+                -@residential=current_user.residential
+                -@residential.users.where("user_type_id=3").each do |usr|
+                  %tr{:id=>"item_#{usr.id}"}
+                    %td=link_to usr.usercode, show_adm_path(usr.id)
+                    %td=usr.name
+                    %td=usr.user_status.name 
+                    %td=link_to "Editar",root_url
+                    
+        .tab-pane#adminVisitor
+          %dl
+            %dt Historial de Visitas
+            %dd En esta seccion se despliega el record completo de accesos vehiculares al residencial. Ademas es posible realizar busquedas por rango de fecha/hora, No. de placa del vehiculo y nombre del visitante.
+            %a{"data-toggle" => "modal",:href=>"#searchNameFormModalAdmin",:class=>"btn btn-inverse"}Buscar por Nombre
+            =link_to "Restaurar", restore_admin_vis_path, :remote=>true,:class=>"btn btn-info",:method=>"put"
+            %table.table.table-striped.table-bordered.table-condensed#visitorsRecordTableAdmin
+              %thead
+                %tr
+                  %th
+                    %b Nombre
+                  %th
+                    %b Doc. Identificacion
+                  %th
+                    %b Placa del Vehiculo
+                  %th
+                    %b Entrada
+                  %th
+                    %b Salida
+                  %th
+                    %b Accion
+              %tbody
+                -@residential=current_user.residential
+                -@residential.records.order("entrance DESC").each do |rec|
+                  %tr{:id=>"item_#{rec.id}"}
+                    %td= link_to rec.visitor.name, show_vis_path(rec.visitor.id)
+                    %td= rec.visitor.id_number
+                    %td= rec.plate_number
+                    %td= rec.entrance
+                    %td= rec.exit
+                    %td= link_to "Restringir", bann_visitor_path(rec.visitor.id),:remote=>true, :method=>"put"
+        .tab-pane#adminAgents
+          %dl
+            %dt Panel de Agenetes de Seguridad
+            %dd En esta seccion es posible agregar, editar y eliminar usuarios tipo Agente de Seguridad. Estos usuarios son los encargados de solicitar permisos de ingresos y registrar las visitas, desde la garita de seguridad del residencial.
+            =link_to "Agregar Agente de Seguridad", signup_url(:usertype=>2),:class=>'btn btn-primary'
+            %table.table.table-striped.table-bordered.table-condensed#usersTable
+              %thead
+                %tr
+                  %th
+                    %b Codigo
+                  %th
+                    %b Alias
+                  %th
+                    %b Estado
+                  %th
+                    %b Accion
+              %tbody
+                -@residential=current_user.residential
+                -@residential.users.where("user_type_id=2").each do |usr|
+                  %tr{:id=>"item_#{usr.id}"}
+                    %td=link_to usr.usercode, show_adm_path(usr.id)
+                    %td=usr.name
+                    %td=usr.user_status.name 
+                    %td=link_to "Editar",root_url
+        .tab-pane#adminBanned
+          %dl
+            %dt Panel Visitantes No Admitidos
+            %dd En esta seccion se encuentra una lista de las personas a las cuales se les ha restringido el ingreso al residencial por desicion del comite o dirigentes del mismo.
+            
+            %table.table.table-striped.table-bordered.table-condensed#adminBannedTable
+              %thead
+                %tr
+                  %th
+                    %b Nombre
+                  %th
+                    %b Doc. Identificacion
+                  %th
+                    %b Nota
+                  %th
+                    %b Accion
+              %tbody
+                -@residential=current_user.residential
+                -@residential.banned_visitors.each do |vis|
+                  %tr{:id=>"baned_item#{vis.id}"}
+                    %td=link_to vis.name, visitor_show_path(vis.id)
+                    %td=vis.id_number
+                    %td=vis.note
+                    %td=link_to "Admitir", unbann_visitor_path(vis.id),:remote=>true,:method=>"put",:onclick=>"$('#baned_item#{vis.id}').remove();"
+                    .modal.hide.fade#searchNameFormModal
+.modal.hide.fade#searchNameFormModalAdmin  
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Busqueda de un registro de visitantes por Nombre
+  .modal-body
+    %p Indique el nombre del visitante a buscar.
+    =form_tag(search_visitor_name_admin_path, :method => "put",:class => "form-horizontal", :remote => true) do
+      Nombre
+      =text_field_tag(:name)
+      %br
+      = submit_tag("Buscar")

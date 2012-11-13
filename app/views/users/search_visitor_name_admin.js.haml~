@@ -1,0 +1,3 @@
+$('#searchNameFormModal').modal('hide');
+$('#visitorsRecordTableAdmin tbody').empty()
+$('#visitorsRecordTableAdmin tbody').append("#{escape_javascript(render :partial=>'setresult_admin')}");

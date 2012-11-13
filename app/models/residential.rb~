@@ -1,0 +1,7 @@
+class Residential < ActiveRecord::Base
+  attr_accessible :description, :name, :note, :residential_address, :residential_status_id, :residential_type_id
+  belongs_to :residential_status
+  belongs_to :residential_type
+  has_many :users
+  
+end

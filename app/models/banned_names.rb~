@@ -1,0 +1,3 @@
+class BannedNames < ActiveRecord::Base
+  attr_accessible :id_number, :name, :note
+end

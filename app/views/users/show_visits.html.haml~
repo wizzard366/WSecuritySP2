@@ -1,0 +1,160 @@
+.content
+  .row
+    .span3
+      %center
+        %img.img-rounded{:src=>"/assets/home-12.png"}
+    .span3
+      .well.well-small
+        %strong Codigo de Casa:
+        = current_user.usercode
+        %br
+        %strong Direccion:
+        = current_user.physaddress
+        %br
+        %strong Status:
+        = current_user.user_status.name
+
+  .row
+    .span9
+      %ul.nav.nav-tabs
+        %li.active
+          %a{"data-toggle" => "tab", :href => "#lastVisitors"}
+            %i.icon-star
+            %b ultimos visitantes
+        %li
+          %a{"data-toggle" => "tab", :href => "#visitorsRecord"}
+            %i.icon-time
+            %b Historial de visitas
+        %li
+          %a{"data-toggle" => "tab", :href => "#bannedList"}
+            %i.icon-ban-circle
+            %b Listado de No admitidos
+.tab-content
+  .tab-pane.active#lastVisitors
+    %table.table.table-striped.table-bordered.table-hover#lastVisitors_table
+      %thead
+        %tr.info
+          %th{:colspan=>6}
+            %h2 Ultimos visitantes
+            %p
+              %small{:style=>"font-weight:normal"}En el listado de ultimos visitantes, podras encontrar a las personas que ingresaron al residencial, el dia de hoy, con el motivo de visitar su direccion.
+        %tr
+          %th Nombre
+          %th Doc. Identificacion
+          %th Placas del vehiculo
+          %th Entrada
+          %th Salida
+      
+      %tbody
+        - current_user.records.where("entrance <= :now AND entrance >= :yesterday",{:now=>Time.now,:yesterday=>Date.yesterday.to_time}).order("entrance DESC").each do |t|
+          %tr
+            %td= link_to t.visitor.name, visitor_show_path(t.visitor.id)
+            %td= t.visitor.id_number
+            %td= t.plate_number
+            %td= t.entrance
+            %td= t.exit
+  .tab-pane#visitorsRecord
+    %table.table.table-striped.table-bordered.table-hover#visitorRecord_table
+      %thead
+        %tr.info
+          %th{:colspan=>5}
+            %h2 Historial de visitas
+            %p 
+              %small{:style=>"font-weight:normal"}En el Historial de visitas, podras hacer busquedas por fecha y hora de ingreso, placa del vehiculo, nombre y numero de documento de idenficacion, dentro de todo tu historial de visitas.
+        %tr
+          %th{:colspan=>6}
+            %a{"data-toggle" => "modal",:href=>"#searchDateFormModal",:class=>"btn btn-info"}Buscar por Fecha/hora
+            %a{"data-toggle" => "modal",:href=>"#searchPlateFormModal",:class=>"btn btn-success"}Buscar por Placas
+            %a{"data-toggle" => "modal",:href=>"#searchNameFormModal",:class=>"btn btn-inverse"}Buscar por Nombre
+            =link_to "Restaurar", restore_visitor_lists_url, :remote => true, :class => "btn btn-warning"
+        %tr
+          %th Nombre
+          %th Doc. Identificacion
+          %th Placas del vehiculo
+          %th Entrada
+          %th Salida
+          %th Accion
+      
+      %tbody
+        - current_user.records.order("entrance DESC").each do |t|
+          %tr{:id=>"vis_item#{t.visitor.id}"}
+            %td= link_to t.visitor.name, visitor_show_path(t.visitor.id)
+            %td= t.visitor.id_number
+            %td= t.plate_number
+            %td= t.entrance
+            %td= t.exit
+            %td= link_to "Restringir", add_ban_vis_path(t.visitor.id), :remote=>true,:method=>"put"
+  .tab-pane#bannedList
+    %table.table.table-striped.table-bordered.table-hover#bannedList_table
+      %thead
+        %tr.info
+          %th{:colspan=>4}
+            %h2 Listado de No Admitidos
+            %p
+              %small{:style=>"font-weight: normal"} Con el listado de no admitidos, es posible, crear una lista de personas, que usted no desea permitirles el ingreso hacia su direccion. Cada persona que ingrese en esta lista, al idenficarse en garita, se le es negado el ingreso.
+        %tr
+        %th{:colspan=>4}
+          %a{"data-toggle" => "modal",:href=>"#newBannedVisitorModal",:class=>"btn btn-warning"}Agregar Nuevo
+        %tr
+        %th Nombre
+        %th Doc. Identificacion
+        %th Accion
+      
+      %tbody
+        - current_user.banned_names.each do |t|
+          %tr{:id=>"item_#{t.id}"}
+            %td= t.name
+            %td= t.id_doc
+            %td= link_to "Eliminar", sup_banned_name_path(t.id), :remote=>true, :method=>"put"
+        - current_user.banned_visitors.each do |t|
+          %tr{:id=>"item2_#{t.id}"}
+            %td= t.name
+            %td= t.id_number
+            %td= link_to "Eliminar", sup_banned_visitor_path(t.id), :remote=>true, :method=>"put"
+.modal.hide.fade#newBannedVisitorModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Agregar un Individuo a la lista de No Admitidos
+  .modal-body
+    = form_tag(add_banned_name_path, :method => "put",:class => "form-horizontal", :remote => true) do
+      =label_tag(:visitor_name, "Nombre Completo:")
+      =text_field_tag(:visitor_name)
+      =label_tag(:visitor_id_number,"No. de Identificacion:")
+      =text_field_tag(:visitor_id_number)
+      =submit_tag("Agregar")
+.modal.hide.fade#searchDateFormModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Busqueda de un registro de visitantes por intervalo de fecha/hora
+  .modal-body
+    %p Indique los terminos de busqueda para desplegar los resultados que usted desea.
+    = form_tag(search_visitor_date_path, :method => "put",:class => "form-horizontal", :remote => true) do
+      A partir de:
+      =datetime_select :record, :begin,:order=>[:day,:month,:year,:hour,:minute]
+      %br
+      hasta:
+      =datetime_select :record, :end
+      = submit_tag("Buscar")
+      
+.modal.hide.fade#searchPlateFormModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Busqueda de un registro de visitantes por numero de placa
+  .modal-body
+    %p Indique el numero de placa del vehiculo a buscar.
+    =form_tag(search_visitor_plate_path, :method => "put",:class => "form-horizontal", :remote => true) do
+      Numero de placa:
+      =text_field_tag(:plate_number)
+      %br
+      = submit_tag("Buscar")
+.modal.hide.fade#searchNameFormModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Busqueda de un registro de visitantes por Nombre
+  .modal-body
+    %p Indique el nombre del visitante a buscar.
+    =form_tag(search_visitor_name_path, :method => "put",:class => "form-horizontal", :remote => true) do
+      Nombre
+      =text_field_tag(:name)
+      %br
+      = submit_tag("Buscar")

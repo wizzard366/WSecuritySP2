@@ -1,0 +1,19 @@
+
+
+.container
+  .content
+    .row
+      .span3
+        .well
+          =image_tag( @vis.photo.image.url(:medium),:class=>"img-rounded")
+      .span6
+        %strong Nombre:
+        = @vis.name
+        %br
+        %strong No. de Identificacion:
+        = @vis.id_number
+        %br
+        %strong Status de Visitante:
+        = @vis.visitor_status.name
+
+=link_to "Regresar", secret_visits_url

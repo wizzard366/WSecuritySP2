@@ -1,0 +1,9 @@
+-if @records != nil
+  - @records.order("entrance DESC").each do |t|
+    %tr{:id=>"item_#{t.id}"}
+      %td= link_to t.visitor.name, show_vis_path(t.visitor.id)
+      %td= t.visitor.id_number
+      %td= t.plate_number
+      %td= t.entrance
+      %td= t.exit
+      %td= link_to "Restringir", bann_visitor_path(t.visitor.id), :remote=>true,:method=>"put"

@@ -1,0 +1,6 @@
+-vis=@vis
+%tr{:id=>"baned_item#{vis.id}"}
+  %td=link_to vis.name, visitor_show_path(vis.id)
+  %td=vis.id_number
+  %td=vis.note
+  %td=link_to "Admitir", unbann_visitor_path(vis.id),:remote=>true,:method=>"put",:onclick=>"$('#baned_item#{vis.id}').remove();"

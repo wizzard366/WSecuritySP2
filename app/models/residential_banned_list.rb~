@@ -1,0 +1,3 @@
+class ResidentialBannedList < ActiveRecord::Base
+  attr_accessible :residential_id, :visitor_id
+end

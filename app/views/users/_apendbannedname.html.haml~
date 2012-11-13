@@ -1,0 +1,12 @@
+-if @p
+  -t=@vis
+  %tr{:id=>"item_2#{t.id}"}
+    %td= t.name
+    %td= t.id_number
+    %td= link_to "Eliminar", sup_banned_visitor_path(t.id)
+-else
+  -t=@banned_name
+  %tr{:id=>"item_#{t.id}"}
+    %td= t.name
+    %td= t.id_doc
+    %td= link_to "Eliminar", sup_banned_name_path(t.id), :remote=>true, :method=>"put"

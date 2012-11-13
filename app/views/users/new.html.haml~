@@ -1,0 +1,51 @@
+.row
+  .span4
+    .well
+      %h1 Nuevo Usuario
+      .div
+      = form_for @user do |f|
+        - if @user.errors.any?
+          .error_messages
+            %h2 Form is invalid
+            %ul
+              - for message in @user.errors.full_messages
+                %li= message
+        .field
+          -if params[:usertype]=="1"
+            = f.label "Codigo de Residencia:"
+          -else
+            = f.label "Codigo de Usuario"
+          = f.text_field :usercode
+        .field
+          = f.label "Nombre de Usuario:"
+          = f.text_field :name
+        .field
+          - if params[:usertype]=="1"
+            = f.label "Direccion Fisica:"
+          = f.text_field :physaddress
+          = f.hidden_field :user_type_id,{:value=>params[:usertype]}
+          = f.hidden_field :user_status_id ,{:value=>1}
+          = f.hidden_field :residential_id,{:value=>current_user.residential.id}
+        .field
+          = f.label "Contraseña:"
+          = f.password_field :password
+        .field
+          = f.label "Confirmar Contraseña:"
+          = f.password_field :password_confirmation
+        .actions= f.submit
+  .span6
+    %table.table.table-bordered
+      %tr
+        %td
+          -if params[:usertype]=="1"
+            %h3 Agregar Nuevo Usuario tipo Residencia.
+            %p Agrege un nuevo usuario que representa una direccion fisica dentro del residencial.
+          -else
+            -if params[:usertype]=="2"
+              %h3 Agregar Nuevo usuario tipo Agente de Seguridad
+              %p Agrege un nuevo usuario que representa un agente encargado del control de Acceso vehicular.
+            -else
+              %h3 Agregar Nuevo Usuario tipo Administrador.
+              %p Agrege un nuevo usuario con permisos total acceso para administrar todo el residencial, sus direcciones y Agentes.
+  
+    =link_to "Regresar", secret_url

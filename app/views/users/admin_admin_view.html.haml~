@@ -1,0 +1,73 @@
+%center
+  %h1 Panel de Edicion de Usuarios
+.row
+  .span3
+    %h3 Datos del Usuario
+ 
+    =link_to "Regresar", secret_admin_url
+  .span5
+    .well.well-small
+      %h4{:style=>"color:#333366"}
+        ="Usuario"
+        =@user.id
+      %table.table.table-striped.table-bordered
+        %tr
+          %td Codigo:
+          %td#userCode=@user.usercode
+        %tr
+          %td Alias:
+          %td#userName=@user.name
+        %tr
+          %td Tipo de Usuario:
+          %td#userAdd=@user.user_type.name
+        %tr
+          %td Status:
+          %td#userStatus=@user.user_status.name
+      %a{"data-toggle" => "modal",:href=>"#editUserModal",:class=>"btn btn-success"}Editar
+      %a{"data-toggle" => "modal",:href=>"#supUserModal",:class=>"btn btn-danger"}Eliminar
+      
+.modal.hide.fade#editUserModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h2 Editar Datos de Usuario
+  .modal-body
+    -if @user.user_type_id == 1
+      %p Este Usuario hace referencia a una direccion fisica dentro del residencial
+    -else
+      -if @user.user_type_id == 2
+        %p Este Usuario hace referencia a un Agente de Seguridad, encargado del Acceso Vehicular
+      -else
+        %p Este usuario hace referencia a un Administrador de Residencial, encargado del control tanto de Residencias existentes como de Agentes de Seguridad
+    %br
+    =form_tag(update_user_path(:user_id=>@user.id), :method => "put",:class => "form-horizontal", :remote => true) do
+      .control-group
+        =label_tag :usercode,"Codigo de Usuario",:class=>"control-label"
+        .controls
+          =text_field_tag :usercode, @user.usercode,:readonly=>true
+      .control-group
+        =label_tag :name,"Alias",:class=>"control-label"
+        .controls
+          =text_field_tag :name, @user.name
+      .control-group
+        -if @user.user_type_id == 1
+          =label_tag :physaddress,"Direccion fisica",:class=>"control-label"
+          .controls
+            =text_field_tag :physaddress, @user.physaddress
+      .control-group
+        =label_tag :user_status,"Estatus de Usuario",:class=>"control-label"
+        .controls
+          =collection_select(:user, :user_status_id, UserStatus.all, :id, :name)
+      .control-group
+        =label_tag :user_type,"Tipo de Usuario",:class=>"control-label"
+        .controls
+          =text_field_tag :user_status, @user.user_type.name,:readonly=>true
+          =submit_tag "Enviar",:class=>"btn btn-info"
+.modal.hide.fade#supUserModal
+  .modal-header
+    %button.close{"data-dismiss"=>"modal"}x
+    %h1{:style=>"color:red"} Esta seguro de Eliminar este usuario?
+  .modal-body
+    %p Si continua con esta accion, eliminara permanentemente a este usuario junto con todo su historial de visitas.
+    %a{"data-toggle" => "modal",:href=>"#supUserModal",:class=>"btn btn-primary"}Cancelar
+    =link_to "Eliminar", destroy_user_url(:user_id=>@user.id),:class=>"btn btn-danger",:method=>'put'
+    

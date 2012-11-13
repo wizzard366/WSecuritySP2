@@ -1,0 +1,24 @@
+class VisitorsController < ApplicationController
+  def show
+    @vis = Visitor.find(params[:id])
+  end
+  def bann_visitor
+    @vis=Visitor.find(params[:id])
+    residential=current_user.residential
+    residential.banned_visitors<<@vis
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+  def unbann_visitor
+    @vis=Visitor.find(params[:id])
+    recid=ResidentialBannedList.where("visitor_id=:vis_id AND residential_id=:resid",{:vis_id=>params[:id]},:resid=>current_user.residential.id)
+    ResidentialBannedList.delete(recid[0])
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+end
+

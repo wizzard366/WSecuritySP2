@@ -1,0 +1,8 @@
+$('#visitor_name').attr("value","");
+$('#visitor_doc').attr("value","");
+$('#plate_number').attr("value","");
+$('#usercode').attr("value","");
+$('#modalbody').empty();
+$('#modalbody').append("#{escape_javascript(render :partial=>'result')}");
+$('#ResultModal').modal('show')
+

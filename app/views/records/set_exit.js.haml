@@ -1,0 +1,4 @@
+$('#visitor_doc').attr("value","");
+$('#modalbody').empty();
+$('#modalbody').append("#{escape_javascript(render :partial=>'result')}");
+$('#ResultModal').modal('show')

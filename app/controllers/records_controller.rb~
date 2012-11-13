@@ -1,0 +1,94 @@
+class RecordsController < ApplicationController
+  skip_before_filter :verify_authenticity_token, :only => [:upload]
+  def new
+  end
+
+  def create
+    visitor_name = params[:visitor_name]
+    visitor_doc = params[:visitor_doc]
+    visitor_plate = params[:plate_number]
+    usercode = params[:usercode]
+    entrance = DateTime.now
+    #search if the "codigo de casa" is an usercode of an user withing this residential
+    users = User.where("usercode=:usercode AND residential_id=:res",{:usercode=>usercode,:res=>current_user.residential.id})
+    empty_array=[]
+    if users.size > 0
+      user=users.first
+      #print "************************************************************************************"+users[0]
+      visitors = Visitor.where("id_number=:vis_doc",{:vis_doc=>visitor_doc})
+      if(visitors.size>0)
+        vis=visitors.first
+        if (user.residential.banned_visitors.where("visitor_id=:vis_id",{:vis_id=>vis.id})).size>0
+          @result=1
+        else
+          if (user.banned_visitors.where("visitor_id=:vis_id",{:vis_id=>vis.id}).size>0) 
+            @result=2
+          else
+            @record = Record.new(:entrance => entrance, :plate_number => visitor_plate, :visitor_id => vis.id, :residential_id => current_user.residential.id)
+            user.records << @record
+            user.save
+            @result=0
+          end
+        end
+      else
+        if (user.banned_names.where("name=:name OR id_doc=:doc",{:name=>visitor_name,:doc=>visitor_doc}).size>0)
+          @result=3     
+        else
+          visitor=Visitor.create(:name=>visitor_name,:id_number => visitor_doc,:note=>"visitante comun",:visitor_status_id=>1)
+          @photo = Photo.new(:visitor_id=>visitor.id)
+          @photo.image = File.new(upload_path)
+          @photo.save
+          @record = Record.new(:entrance => entrance, :plate_number => visitor_plate, :visitor_id => visitor.id, :residential_id => current_user.residential.id)
+          user.records << @record
+          user.save
+          @result=4
+        end
+      end
+    else
+      @result=5
+    end
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+  def set_exit
+    
+    visitors = Visitor.where("id_number=:visitor_doc",{:visitor_doc=>params[:visitor_doc]})
+    if visitors!=[]
+      vis=visitors[0]
+      record = current_user.residential.records.where("visitor_id=:visid",{:visid=>vis.id})
+      Record.update(record[0].id,:exit=>DateTime.now)
+      #record update ok
+      @result=7
+    else
+      @result=6
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def update
+  end
+
+  def destroy
+  end
+  def upload
+    
+
+    File.open(upload_path, 'wb') do |f|
+      f.write request.raw_post
+    end
+    print "********* upload completed*************"
+    render :text => "ok"
+  end
+  private
+ 
+  def upload_path # is used in upload and create
+    file_name = session[:session_id].to_s + '.jpg'
+    File.join(Rails.root, 'public', 'uploads', file_name)
+  end
+end

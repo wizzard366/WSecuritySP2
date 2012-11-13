@@ -1,0 +1,5 @@
+alert('usuario actualizado');
+$('#editUserModal').hide();
+$('#userCode').html('#{escape_javascript(@user.usercode)}');
+$('#userName').html('#{escape_javascript(@user.name)}');
+$('#userAdd').html('#{escape_javascript(@user.physaddress)}');

@@ -1,0 +1,137 @@
+WSecuritySp2Proyect::Application.routes.draw do
+  get "visitors/:id" => "visitors#show", :as=>"visitor_show"
+
+  get "records/new"
+
+  get "records/create"
+
+  get "records/update"
+
+  get "records/destroy"
+
+  resources :photos, :only => [:index, :show, :new, :create] do
+    post 'upload', :on => :collection
+  end
+  post "set_record" =>"records#create", :as=>"set_record"
+  post "set_exit" =>"records#set_exit", :as=>"set_exit"
+  
+  post "upload_pic" =>"records#upload", :as=>"upload_pic"
+  
+  put "add_banned_name" => "users#add_banned_name", :as => "add_banned_name"
+  put "sup_banned_name/:id" => "users#sup_banned", :as => "sup_banned_name"
+  put "sup_banned_visitor/:id" => "users#sup_banned_visitor", :as => "sup_banned_visitor"
+  put "search_visitor_date"=>"users#search_visitor_date", :as=>:"search_visitor_date"
+  put "search_visitor_plate"=>"users#search_visitor_plate", :as=>:"search_visitor_plate"
+  put "search_visitor_name"=>"users#search_visitor_name", :as=>:"search_visitor_name"
+  put "search_visitor_name_admin"=>"users#search_visitor_name_admin", :as=>:"search_visitor_name_admin"
+  get "restore_visitor_lists"=>"users#restore_visitors_list", :as=>:"restore_visitor_lists"
+  put "update_user"=>"users#update",:as=>"update_user"
+  put "bann_visitor/:id"=>"visitors#bann_visitor", :as=>"bann_visitor"
+  put "unbann_visitor/:id"=>"visitors#unbann_visitor", :as=>"unbann_visitor"
+  put "add_ban_vis/:id"=>"users#add_ban_vis",:as=>"add_ban_vis"
+  put "restore_admin_vis"=>"users#restoreAdminVis",:as=>"restore_admin_vis"
+  
+  put "add_residential_user" => "users#addResidentialByAdmin", :as=>"add_residential_user"
+  #search methods from admin's view
+  put "destroy_user"=>"users#destroy", :as=>"destroy_user"
+  
+  get "logout" => "sessions#destroy", :as => "logout"
+  get "login" => "sessions#new", :as => "login"
+  get "signup" => "users#new", :as => "signup"
+  get "secret" => "users#upload_page", :as=> "secret"
+  get "secret_visits" => "users#show_visits", :as => "secret_visits"
+  get "secret_admin" => "users#show_admin" , :as => "secret_admin"
+
+  
+  #routes for displaying info in admin's view
+  
+  get "show_res/:id"=>"users#residential_admin_view", :as=>"show_res"
+  get "show_vis/:id"=>"users#visitor_admin_view", :as=>"show_vis"
+  get "show_adm/:id"=>"users#admin_admin_view", :as=>"show_adm"
+  get "show_adg/:id"=>"users#agent_admin_view", :as=>"show_adg"
+  
+  resources :users
+  resources :sessions
+  root :to => 'sessions#new'
+  
+  get "sessions/create"
+
+  get "sessions/new"
+
+  get "users/new"
+
+  get "users/create"
+
+  get "users/upload_page"
+
+  get "users/show"
+
+  get "users/index"
+
+  get "users/edit"
+
+  get "users/update"
+
+  get "users/destroy"
+
+  get "main_page/index"
+  
+  
+
+  # The priority is based upon order of creation:
+  # first created -> highest priority.
+
+  # Sample of regular route:
+  #   match 'products/:id' => 'catalog#view'
+  # Keep in mind you can assign values other than :controller and :action
+
+  # Sample of named route:
+  #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
+  # This route can be invoked with purchase_url(:id => product.id)
+
+  # Sample resource route (maps HTTP verbs to controller actions automatically):
+  #   resources :products
+
+  # Sample resource route with options:
+  #   resources :products do
+  #     member do
+  #       get 'short'
+  #       post 'toggle'
+  #     end
+  #
+  #     collection do
+  #       get 'sold'
+  #     end
+  #   end
+
+  # Sample resource route with sub-resources:
+  #   resources :products do
+  #     resources :comments, :sales
+  #     resource :seller
+  #   end
+
+  # Sample resource route with more complex sub-resources
+  #   resources :products do
+  #     resources :comments
+  #     resources :sales do
+  #       get 'recent', :on => :collection
+  #     end
+  #   end
+
+  # Sample resource route within a namespace:
+  #   namespace :admin do
+  #     # Directs /admin/products/* to Admin::ProductsController
+  #     # (app/controllers/admin/products_controller.rb)
+  #     resources :products
+  #   end
+
+  # You can have the root of your site routed with "root"
+  # just remember to delete public/index.html.
+   root :to => 'main_page#index'
+
+  # See how all your routes lay out with "rake routes"
+
+  # This is a legacy wild controller route that's not recommended for RESTful applications.
+  # Note: This route will make all actions in every controller accessible via GET requests.
+  # match ':controller(/:action(/:id))(.:format)'
+end

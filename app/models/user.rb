@@ -1,0 +1,20 @@
+class User < ActiveRecord::Base
+  authenticates_with_sorcery!
+  # attr_accessible :title, :body
+  attr_accessible :usercode, :password, :password_confirmation,:physaddress,:name,:user_status_id,:user_type_id,:residential_id
+
+  validates_confirmation_of :password
+  validates_presence_of :password, :on => :create
+  validates_presence_of :usercode
+  validates_uniqueness_of :usercode
+  
+  belongs_to :user_status
+  belongs_to :user_type
+  belongs_to :residential
+  has_many :user_banned_lists
+  has_many :records
+  has_many :user_banned_lists, :dependent => :destroy
+  has_many :visitors, :through => :records
+  has_many :banned_visitors, :through => :user_banned_lists, :source => :visitor
+  has_many :banned_names
+end

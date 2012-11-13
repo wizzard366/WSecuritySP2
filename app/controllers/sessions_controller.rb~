@@ -1,0 +1,25 @@
+class SessionsController < ApplicationController
+  def new
+  end
+
+  def create
+    user = login(params[:usercode], params[:password], params[:remember_me])
+    if user
+      if user.user_type_id == 1
+        redirect_back_or_to secret_visits_url, :notice => "Logged in!"
+      else
+        if user.user_type_id == 2
+          redirect_back_or_to secret_url, :notice => "Logged in!"
+        else
+          redirect_back_or_to secret_admins_url, :notice => "Logged in!"
+        end
+      end
+    else
+      flash.now.alert = "Email or password was invalid."
+    end
+  end
+  def destroy
+    logout
+    redirect_to root_url, :notice => "Logged out!"
+  end
+end

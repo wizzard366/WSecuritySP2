@@ -1,0 +1,28 @@
+:javascript
+  $('#sigpanel').hide();
+  $('#sidebar_span').hide();
+  $('#content_span').attr('class','span12');
+  $('#navbartop').hide();
+
+%center
+  .row
+    .span2.offset5
+      %img.img-rounded{:src=>"/assets/WX.png"}
+    
+  %h1{:style=>"color:#333366"} WSecurity
+  %p{:style=>"color:#999999"} Control de Acceso Vehicular para Residenciales.
+  .row
+    .span4.offset4
+      .well
+        = form_tag sessions_path do
+          .field
+            = label_tag "Codigo de Usuario"
+            = text_field_tag :usercode, params[:usercode]
+          .field
+            = label_tag :password
+            = password_field_tag :password
+          .field
+            = check_box_tag :remember_me, 1, params[:remember_me]
+            = label_tag "Recordarme"
+          .actions= submit_tag "Log in",:class=>"btn btn-info"
+      =link_to "Informacion y contacto",root_url
